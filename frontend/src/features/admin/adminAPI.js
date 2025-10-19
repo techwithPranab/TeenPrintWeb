@@ -60,3 +60,20 @@ export const updateCoupon = (couponId, couponData) => {
 export const deleteCoupon = (couponId) => {
   return api.delete(`/admin/coupons/${couponId}`);
 };
+
+// Contacts APIs
+export const getAllContacts = (params) => {
+  return api.get('/admin/contacts', { params });
+};
+
+export const getContactById = (contactId) => {
+  return api.get(`/admin/contacts/${contactId}`);
+};
+
+export const updateContactStatus = (contactId, statusData) => {
+  return api.put(`/admin/contacts/${contactId}/status`, statusData);
+};
+
+export const deleteContact = (contactId) => {
+  return api.delete(`/admin/contacts/${contactId}`);
+};

@@ -2,6 +2,7 @@ import Order from '../models/Order.model.js';
 import User from '../models/User.model.js';
 import Product from '../models/Product.model.js';
 import Coupon from '../models/Coupon.model.js';
+import Contact from '../models/Contact.model.js';
 import { sendOrderStatusEmail } from '../services/email.service.js';
 
 /**
@@ -611,6 +612,153 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to delete product',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get all contacts (admin)
+ */
+export const getAllContacts = async (req, res) => {
+  try {
+    const page = Number.parseInt(req.query.page) || 1;
+    const limit = Number.parseInt(req.query.limit) || 10;
+    const status = req.query.status;
+    const subject = req.query.subject;
+
+    const query = {};
+    if (status) query.status = status;
+    if (subject) query.subject = subject;
+
+    const contacts = await Contact.find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .select('-__v');
+
+    const total = await Contact.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        contacts,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit),
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Get contacts error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch contacts',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get contact message by ID (Admin only)
+ */
+export const getContactById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const contact = await Contact.findById(id);
+
+    if (!contact) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact message not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { contact },
+    });
+  } catch (error) {
+    console.error('Get contact by ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch contact',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Update contact status (Admin only)
+ */
+export const updateContactStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['unread', 'read', 'replied'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status. Must be unread, read, or replied',
+      });
+    }
+
+    const contact = await Contact.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true, runValidators: true }
+    );
+
+    if (!contact) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact message not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Contact status updated successfully',
+      data: { contact },
+    });
+  } catch (error) {
+    console.error('Update contact status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update contact status',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Delete contact message (Admin only)
+ */
+export const deleteContact = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const contact = await Contact.findByIdAndDelete(id);
+
+    if (!contact) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact message not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Contact message deleted successfully',
+    });
+  } catch (error) {
+    console.error('Delete contact error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete contact',
       error: error.message,
     });
   }

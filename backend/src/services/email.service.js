@@ -187,4 +187,58 @@ export const sendPasswordResetEmail = async (user, resetToken) => {
   await sendEmail(user.email, subject, html);
 };
 
+/**
+ * Send contact notification email to admin
+ */
+export const sendContactNotificationEmail = async (contact) => {
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@teenprint.com';
+  const subject = `New Contact Form Submission - ${contact.subject}`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h1 style="color: #3B82F6;">New Contact Form Submission 📬</h1>
+      
+      <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin-top: 0;">Contact Details</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; width: 120px;">Name:</td>
+            <td style="padding: 8px 0;">${contact.name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold;">Email:</td>
+            <td style="padding: 8px 0;"><a href="mailto:${contact.email}">${contact.email}</a></td>
+          </tr>
+          ${contact.phone ? `
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold;">Phone:</td>
+            <td style="padding: 8px 0;"><a href="tel:${contact.phone}">${contact.phone}</a></td>
+          </tr>
+          ` : ''}
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold;">Subject:</td>
+            <td style="padding: 8px 0;">${contact.subject.charAt(0).toUpperCase() + contact.subject.slice(1)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold;">Date:</td>
+            <td style="padding: 8px 0;">${new Date(contact.createdAt).toLocaleString()}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin-top: 0;">Message</h3>
+        <p style="white-space: pre-wrap; margin: 0;">${contact.message}</p>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <a href="${process.env.FRONTEND_URL}/admin/contacts/${contact._id}" style="display: inline-block; background: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View in Admin Panel</a>
+      </div>
+
+      <p>Please respond to this inquiry as soon as possible.</p>
+    </div>
+  `;
+
+  await sendEmail(adminEmail, subject, html);
+};
+
 export { sendEmail };

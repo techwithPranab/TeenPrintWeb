@@ -27,6 +27,11 @@ const initialState = {
   coupons: [],
   currentCoupon: null,
   
+  // Contacts
+  contacts: [],
+  contactsPagination: null,
+  currentContact: null,
+  
   // UI States
   loading: false,
   error: null,
@@ -41,7 +46,7 @@ export const fetchDashboardStats = createAsyncThunk(
   async (dateRange, { rejectWithValue }) => {
     try {
       const response = await adminAPI.getDashboardStats(dateRange);
-      return response.data;
+      return response.data.data || response.data; // Handle both structures
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -54,7 +59,7 @@ export const fetchAdminOrders = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await adminAPI.getAllOrders(params);
-      return response.data;
+      return response.data.data || response.data; // Handle both structures
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -82,7 +87,7 @@ export const fetchAdminUsers = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await adminAPI.getAllUsers(params);
-      return response.data;
+      return response.data.data || response.data; // Handle both structures
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -107,7 +112,7 @@ export const fetchAdminProducts = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await adminAPI.getAllProducts(params);
-      return response.data;
+      return response.data.data || response.data; // Handle both structures
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -156,7 +161,7 @@ export const fetchAdminCoupons = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await adminAPI.getAllCoupons();
-      return response.data;
+      return response.data.data || response.data; // Handle both structures
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -199,6 +204,55 @@ export const deleteAdminCoupon = createAsyncThunk(
   }
 );
 
+// Contacts
+export const fetchAdminContacts = createAsyncThunk(
+  'admin/fetchAdminContacts',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getAllContacts(params);
+      return response.data; // Contacts has nested structure: data.data.contacts
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: error.message });
+    }
+  }
+);
+
+export const fetchAdminContactById = createAsyncThunk(
+  'admin/fetchAdminContactById',
+  async (contactId, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getContactById(contactId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: error.message });
+    }
+  }
+);
+
+export const updateContactStatus = createAsyncThunk(
+  'admin/updateContactStatus',
+  async ({ contactId, status }, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.updateContactStatus(contactId, { status });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: error.message });
+    }
+  }
+);
+
+export const deleteAdminContact = createAsyncThunk(
+  'admin/deleteAdminContact',
+  async (contactId, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.deleteContact(contactId);
+      return { ...response.data, contactId };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: error.message });
+    }
+  }
+);
+
 // Slice
 const adminSlice = createSlice({
   name: 'admin',
@@ -221,6 +275,9 @@ const adminSlice = createSlice({
     },
     setCurrentOrder: (state, action) => {
       state.currentOrder = action.payload;
+    },
+    setCurrentContact: (state, action) => {
+      state.currentContact = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -485,6 +542,86 @@ const adminSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || 'Failed to delete coupon';
       });
+
+    // Admin Contacts
+    builder
+      .addCase(fetchAdminContacts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAdminContacts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.contacts = action.payload.data.contacts;
+        state.contactsPagination = action.payload.data.pagination;
+      })
+      .addCase(fetchAdminContacts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to fetch contacts';
+      });
+
+    // Fetch Contact By ID
+    builder
+      .addCase(fetchAdminContactById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAdminContactById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentContact = action.payload.data.contact;
+      })
+      .addCase(fetchAdminContactById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to fetch contact';
+      });
+
+    // Update Contact Status
+    builder
+      .addCase(updateContactStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateContactStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message;
+        
+        // Update contact in the list
+        const index = state.contacts.findIndex(contact => contact._id === action.payload.data.contact._id);
+        if (index !== -1) {
+          state.contacts[index] = action.payload.data.contact;
+        }
+        
+        // Update current contact if it matches
+        if (state.currentContact && state.currentContact._id === action.payload.data.contact._id) {
+          state.currentContact = action.payload.data.contact;
+        }
+      })
+      .addCase(updateContactStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to update contact status';
+      });
+
+    // Delete Contact
+    builder
+      .addCase(deleteAdminContact.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAdminContact.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload.message;
+        
+        // Remove contact from the list
+        state.contacts = state.contacts.filter(contact => contact._id !== action.payload.contactId);
+        
+        // Clear current contact if it matches
+        if (state.currentContact && state.currentContact._id === action.payload.contactId) {
+          state.currentContact = null;
+        }
+      })
+      .addCase(deleteAdminContact.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to delete contact';
+      });
   },
 });
 
@@ -495,6 +632,7 @@ export const {
   setCurrentCoupon,
   setCurrentUser,
   setCurrentOrder,
+  setCurrentContact,
 } = adminSlice.actions;
 
 export default adminSlice.reducer;

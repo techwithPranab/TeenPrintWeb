@@ -339,7 +339,7 @@ const AdminOrders = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {loading && orders.length === 0 ? (
+              {loading && (!orders || orders.length === 0) ? (
                 <tr>
                   <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
                     <div className="flex items-center justify-center">
@@ -348,7 +348,7 @@ const AdminOrders = () => {
                     </div>
                   </td>
                 </tr>
-              ) : orders.length === 0 ? (
+              ) : (!orders || orders.length === 0) ? (
                 <tr>
                   <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
                     <div className="flex flex-col items-center">

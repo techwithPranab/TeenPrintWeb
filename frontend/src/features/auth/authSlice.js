@@ -1,9 +1,21 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as authAPI from './authAPI';
 
+// Safe JSON parse helper
+const safeJSONParse = (value) => {
+  try {
+    const item = localStorage.getItem(value);
+    return item ? JSON.parse(item) : null;
+  } catch (error) {
+    console.warn(`Failed to parse localStorage item "${value}":`, error);
+    localStorage.removeItem(value); // Clear corrupted data
+    return null;
+  }
+};
+
 // Initial state
 const initialState = {
-  user: JSON.parse(localStorage.getItem('user')) || null,
+  user: safeJSONParse('user'),
   accessToken: localStorage.getItem('accessToken') || null,
   refreshToken: localStorage.getItem('refreshToken') || null,
   isAuthenticated: !!localStorage.getItem('accessToken'),
@@ -17,7 +29,7 @@ export const register = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authAPI.register(userData);
-      return response.data;
+      return response.data.data; // Return the data.data to match expected structure
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -29,7 +41,7 @@ export const login = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authAPI.login(credentials);
-      return response.data;
+      return response.data.data; // Return the data.data to match expected structure
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -41,7 +53,7 @@ export const getCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await authAPI.getCurrentUser();
-      return response.data;
+      return response.data.data; // Return the data.data to match expected structure
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -88,10 +100,14 @@ const authSlice = createSlice({
       state.refreshToken = refreshToken;
       state.isAuthenticated = true;
 
-      // Save to localStorage
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      // Safe save to localStorage
+      try {
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+      } catch (error) {
+        console.error('Failed to save to localStorage:', error);
+      }
     },
     clearAuth: (state) => {
       state.user = null;
@@ -122,10 +138,14 @@ const authSlice = createSlice({
         state.refreshToken = action.payload.refreshToken;
         state.isAuthenticated = true;
 
-        // Save to localStorage
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
-        localStorage.setItem('accessToken', action.payload.accessToken);
-        localStorage.setItem('refreshToken', action.payload.refreshToken);
+        // Safe save to localStorage
+        try {
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+          localStorage.setItem('accessToken', action.payload.accessToken);
+          localStorage.setItem('refreshToken', action.payload.refreshToken);
+        } catch (error) {
+          console.error('Failed to save to localStorage:', error);
+        }
       })
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
@@ -145,10 +165,14 @@ const authSlice = createSlice({
         state.refreshToken = action.payload.refreshToken;
         state.isAuthenticated = true;
 
-        // Save to localStorage
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
-        localStorage.setItem('accessToken', action.payload.accessToken);
-        localStorage.setItem('refreshToken', action.payload.refreshToken);
+        // Safe save to localStorage
+        try {
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+          localStorage.setItem('accessToken', action.payload.accessToken);
+          localStorage.setItem('refreshToken', action.payload.refreshToken);
+        } catch (error) {
+          console.error('Failed to save to localStorage:', error);
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
@@ -163,7 +187,11 @@ const authSlice = createSlice({
       .addCase(getCurrentUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        try {
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+        } catch (error) {
+          console.error('Failed to save to localStorage:', error);
+        }
       })
       .addCase(getCurrentUser.rejected, (state) => {
         state.isLoading = false;
@@ -177,7 +205,11 @@ const authSlice = createSlice({
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        try {
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+        } catch (error) {
+          console.error('Failed to save to localStorage:', error);
+        }
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.isLoading = false;

@@ -32,26 +32,30 @@ const AdminLogin = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     try {
-      const result = await dispatch(login(formData)).unwrap();
+      console.log('Admin login attempt with:', formData);
       
-      // Check if user is admin
-      if (result.user?.role === 'admin') {
-        navigate('/admin');
-      } else {
-        // Not an admin, logout and show error
-        dispatch(logout());
-        alert('Access denied. Admin privileges required.');
+      const result = await dispatch(login(formData));
+      console.log('Login result:', result);
+      
+      if (result.type === 'auth/login/fulfilled') {
+        console.log('Login successful, user:', result.payload.user);
+        
+        if (result.payload.user.role === 'admin') {
+          console.log('Admin user verified, redirecting to dashboard...');
+          navigate('/admin');
+        }
       }
     } catch (error) {
-      console.error('Admin login failed:', error);
+      console.error('Login error:', error);
     }
   };
 
   const handleDemoLogin = () => {
+    console.log('Demo login clicked');
     setFormData({
       email: 'admin@teenprint.com',
       password: 'password123',

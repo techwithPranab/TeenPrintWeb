@@ -81,9 +81,17 @@ export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Try to find by ID first, then by slug
-    let product = await Product.findById(id).populate('category');
+    let product;
 
+    // Check if id is a valid ObjectId
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+
+    if (isValidObjectId) {
+      // Try to find by ID first
+      product = await Product.findById(id).populate('category');
+    }
+
+    // If not found by ID or not a valid ObjectId, try to find by slug
     if (!product) {
       product = await Product.findOne({ slug: id }).populate('category');
     }

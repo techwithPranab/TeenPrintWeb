@@ -5,6 +5,7 @@ import {
   Package,
   ShoppingCart,
   Users,
+  MessageSquare,
   Tag,
   Settings,
   Menu,
@@ -26,6 +27,7 @@ const AdminLayout = () => {
     { path: '/admin/products', label: 'Products', icon: Package },
     { path: '/admin/orders', label: 'Orders', icon: ShoppingCart },
     { path: '/admin/users', label: 'Users', icon: Users },
+    { path: '/admin/contacts', label: 'Contacts', icon: MessageSquare },
     { path: '/admin/coupons', label: 'Coupons', icon: Tag },
     { path: '/admin/settings', label: 'Settings', icon: Settings },
   ];

@@ -15,8 +15,15 @@ import cartRoutes from './routes/cart.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import contactRoutes from './routes/contact.routes.js';
+import reviewRoutes from './routes/review.routes.js';
 
 const app = express();
+
+// Trust proxy for accurate IP detection behind reverse proxies
+// Set to 'loopback' for development (trusts localhost)
+// In production, set to specific proxy IPs or number of trusted proxies
+app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : 'loopback');
 
 // Security middleware
 app.use(helmet());
@@ -46,8 +53,8 @@ app.use(passport.initialize());
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  windowMs: Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: Number.parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   message: 'Too many requests from this IP, please try again later',
 });
 
@@ -68,6 +75,8 @@ app.use(`/api/${API_VERSION}/cart`, cartRoutes);
 app.use(`/api/${API_VERSION}/upload`, uploadRoutes);
 app.use(`/api/${API_VERSION}/orders`, orderRoutes);
 app.use(`/api/${API_VERSION}/admin`, adminRoutes);
+app.use(`/api/${API_VERSION}/contact`, contactRoutes);
+app.use(`/api/${API_VERSION}/reviews`, reviewRoutes);
 
 // 404 handler
 app.use((req, res) => {

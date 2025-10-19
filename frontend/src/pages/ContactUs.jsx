@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { MapPin, Phone, Mail, Clock, Send, Loader2, CheckCircle } from 'lucide-react';
+import { submitContactForm } from '../features/contact/contactAPI';
 
 const ContactUs = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -39,14 +40,12 @@ const ContactUs = () => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      // TODO: Implement contact form API
-      console.log('Contact form data:', values);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+      await submitContactForm(values);
       setSubmitSuccess(true);
       resetForm();
       setTimeout(() => setSubmitSuccess(false), 5000);
     } catch (error) {
-      alert('Failed to send message. Please try again.');
+      alert(error.message || 'Failed to send message. Please try again.');
     } finally {
       setSubmitting(false);
     }

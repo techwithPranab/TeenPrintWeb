@@ -306,7 +306,7 @@ const AdminUsers = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {loading && users.length === 0 ? (
+              {loading && (!users || users.length === 0) ? (
                 <tr>
                   <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                     <div className="flex items-center justify-center">
@@ -315,7 +315,7 @@ const AdminUsers = () => {
                     </div>
                   </td>
                 </tr>
-              ) : users.length === 0 ? (
+              ) : (!users || users.length === 0) ? (
                 <tr>
                   <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                     <div className="flex flex-col items-center">

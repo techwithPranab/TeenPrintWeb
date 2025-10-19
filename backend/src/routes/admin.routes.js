@@ -31,4 +31,10 @@ router.post('/products', adminController.createProduct);
 router.put('/products/:productId', adminController.updateProduct);
 router.delete('/products/:productId', adminController.deleteProduct);
 
+// Contact management
+router.get('/contacts', adminController.getAllContacts);
+router.get('/contacts/:id', adminController.getContactById);
+router.put('/contacts/:id/status', adminController.updateContactStatus);
+router.delete('/contacts/:id', adminController.deleteContact);
+
 export default router;
