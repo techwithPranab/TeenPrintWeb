@@ -71,6 +71,10 @@ export const getCart = async (req, res) => {
       // Create new cart if doesn't exist
       cart = await Cart.create({ user: userId, items: [] });
     } else {
+      // Set default values for calculation
+      cart.taxRate = cart.taxRate || 0;
+      cart.shippingCharges = cart.shippingCharges || 0;
+      
       // Recalculate totals
       cart = await calculateCartTotals(cart);
       await cart.save();
@@ -96,7 +100,7 @@ export const getCart = async (req, res) => {
 export const addToCart = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { productId, designId, quantity, selectedSize, selectedColor, customizations } = req.body;
+    const { productId, designId, quantity, size, color, customizations } = req.body;
 
     // Validate product
     const product = await Product.findById(productId);
@@ -137,8 +141,8 @@ export const addToCart = async (req, res) => {
       (item) =>
         item.product.toString() === productId &&
         item.design?.toString() === designId &&
-        item.selectedSize === selectedSize &&
-        item.selectedColor === selectedColor
+        item.size === size &&
+        item.color === color
     );
 
     if (existingItemIndex > -1) {
@@ -151,9 +155,10 @@ export const addToCart = async (req, res) => {
         design: designId,
         quantity: quantity || 1,
         price,
-        selectedSize,
-        selectedColor,
+        size,
+        color,
         customizations,
+        subtotal: price * (quantity || 1),
       });
     }
 
@@ -214,6 +219,7 @@ export const updateCartItem = async (req, res) => {
     }
 
     item.quantity = quantity;
+    item.subtotal = item.price * quantity;
 
     // Recalculate totals
     cart = await calculateCartTotals(cart);

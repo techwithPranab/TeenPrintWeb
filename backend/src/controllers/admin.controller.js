@@ -445,7 +445,7 @@ export const deleteCoupon = async (req, res) => {
 export const getAllProducts = async (req, res) => {
   try {
     const { page = 1, limit = 20, search, category, inStock } = req.query;
-
+    console.log('getAllProducts called with:', req.query);
     const query = {};
     if (search) {
       query.$or = [
@@ -455,17 +455,20 @@ export const getAllProducts = async (req, res) => {
       ];
     }
     if (category) query.category = category;
-    if (inStock !== undefined) query.inStock = inStock === 'true';
+    if (inStock === 'true') query.inStock = true;
+    if (inStock === 'false') query.inStock = false;
 
     const skip = (page - 1) * limit;
-
+    console.log('fetchAdminProducts query:', query);
     const products = await Product.find(query)
       .populate('category', 'name')
       .sort('-createdAt')
       .skip(skip)
       .limit(Number.parseInt(limit));
 
+    console.log('Found products count:', products.length);
     const total = await Product.countDocuments(query);
+    console.log('Total products count:', total);
 
     res.json({
       success: true,

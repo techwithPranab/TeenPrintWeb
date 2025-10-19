@@ -59,7 +59,7 @@ export const fetchAdminOrders = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await adminAPI.getAllOrders(params);
-      return response.data.data || response.data; // Handle both structures
+      return response.data.data; // Orders has nested structure: data.data
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -87,7 +87,7 @@ export const fetchAdminUsers = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await adminAPI.getAllUsers(params);
-      return response.data.data || response.data; // Handle both structures
+      return response.data.data; // Users has nested structure: data.data
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -111,7 +111,9 @@ export const fetchAdminProducts = createAsyncThunk(
   'admin/fetchAdminProducts',
   async (params, { rejectWithValue }) => {
     try {
+      console.log('fetchAdminProducts params:', params)
       const response = await adminAPI.getAllProducts(params);
+      console.log('fetchAdminProducts response:', response.data.data);
       return response.data.data || response.data; // Handle both structures
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
@@ -161,7 +163,7 @@ export const fetchAdminCoupons = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await adminAPI.getAllCoupons();
-      return response.data.data || response.data; // Handle both structures
+      return response.data.data; // Coupons has nested structure: data.data
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -210,7 +212,7 @@ export const fetchAdminContacts = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await adminAPI.getAllContacts(params);
-      return response.data; // Contacts has nested structure: data.data.contacts
+      return response.data.data; // Contacts has nested structure: data.data
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -551,8 +553,8 @@ const adminSlice = createSlice({
       })
       .addCase(fetchAdminContacts.fulfilled, (state, action) => {
         state.loading = false;
-        state.contacts = action.payload.data.contacts;
-        state.contactsPagination = action.payload.data.pagination;
+        state.contacts = action.payload.contacts;
+        state.contactsPagination = action.payload.pagination;
       })
       .addCase(fetchAdminContacts.rejected, (state, action) => {
         state.loading = false;

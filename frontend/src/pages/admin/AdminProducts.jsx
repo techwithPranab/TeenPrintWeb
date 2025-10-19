@@ -39,7 +39,7 @@ const AdminProducts = () => {
   const [filters, setFilters] = useState({
     search: '',
     category: '',
-    inStock: '',
+    inStock: 'true',
     page: 1,
     limit: 10,
   });
