@@ -28,11 +28,14 @@ import DesignEditor from './pages/DesignEditor';
 
 // Admin Components
 import AdminLayout from './components/admin/AdminLayout';
+import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import AdminLogin from './pages/admin/AdminLogin';
 import Dashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCoupons from './pages/admin/AdminCoupons';
+import AdminSettings from './pages/admin/AdminSettings';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -40,15 +43,15 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
-// Admin Route Component
-const AdminRoute = ({ children }) => {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
-  return isAuthenticated && user?.role === 'admin' ? (
-    children
-  ) : (
-    <Navigate to="/" replace />
-  );
-};
+// Admin Route Component - DEPRECATED: Using AdminProtectedRoute instead
+// const AdminRoute = ({ children }) => {
+//   const { isAuthenticated, user } = useSelector((state) => state.auth);
+//   return isAuthenticated && user?.role === 'admin' ? (
+//     children
+//   ) : (
+//     <Navigate to="/admin/login" replace />
+//   );
+// };
 
 function App() {
   return (
@@ -85,12 +88,14 @@ function App() {
       </Route>
 
       {/* Admin Routes (Separate Layout) */}
-      <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
         <Route index element={<Dashboard />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="coupons" element={<AdminCoupons />} />
+        <Route path="settings" element={<AdminSettings />} />
       </Route>
 
       {/* Routes with Layout again for 404 */}

@@ -1,94 +1,58 @@
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  DollarSign,
+  TrendingUp,
+  Package,
   ShoppingCart,
   Users,
-  Package,
-  TrendingUp,
-  TrendingDown,
+  DollarSign,
+  Eye,
+  Calendar,
+  RefreshCw,
 } from 'lucide-react';
+import { fetchDashboardStats, clearError } from '../../features/admin/adminSlice';
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({
-    totalRevenue: 0,
-    totalOrders: 0,
-    totalUsers: 0,
-    totalProducts: 0,
-    revenueChange: 0,
-    ordersChange: 0,
-    usersChange: 0,
-    productsChange: 0,
+  const dispatch = useDispatch();
+  const { dashboardStats, recentOrders, topProducts, loading, error } = useSelector(
+    (state) => state.admin
+  );
+
+  const [dateRange, setDateRange] = useState({
+    startDate: '',
+    endDate: '',
   });
 
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    dispatch(fetchDashboardStats(dateRange));
+  }, [dispatch, dateRange]);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      
-      // Fetch stats
-      const statsResponse = await fetch('http://localhost:5000/api/admin/stats', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      // Fetch recent orders
-      const ordersResponse = await fetch('http://localhost:5000/api/admin/orders?limit=5', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (statsResponse.ok && ordersResponse.ok) {
-        const statsData = await statsResponse.json();
-        const ordersData = await ordersResponse.json();
-
-        setStats(statsData);
-        setRecentOrders(ordersData.orders || ordersData);
-      }
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
+    if (error) {
+      const timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 5000);
+      return () => clearTimeout(timer);
     }
+  }, [error, dispatch]);
+
+  const handleDateRangeChange = (field, value) => {
+    setDateRange(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const statCards = [
-    {
-      title: 'Total Revenue',
-      value: `₹${stats.totalRevenue?.toLocaleString() || 0}`,
-      change: stats.revenueChange || 0,
-      icon: DollarSign,
-      color: 'bg-green-500',
-    },
-    {
-      title: 'Total Orders',
-      value: stats.totalOrders || 0,
-      change: stats.ordersChange || 0,
-      icon: ShoppingCart,
-      color: 'bg-blue-500',
-    },
-    {
-      title: 'Total Users',
-      value: stats.totalUsers || 0,
-      change: stats.usersChange || 0,
-      icon: Users,
-      color: 'bg-purple-500',
-    },
-    {
-      title: 'Total Products',
-      value: stats.totalProducts || 0,
-      change: stats.productsChange || 0,
-      icon: Package,
-      color: 'bg-orange-500',
-    },
-  ];
+  const handleRefresh = () => {
+    dispatch(fetchDashboardStats(dateRange));
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(amount);
+  };
 
   const getStatusColor = (status) => {
     const colors = {
@@ -102,112 +66,276 @@ const Dashboard = () => {
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
-  if (loading) {
+  if (loading && !dashboardStats) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="flex items-center space-x-2">
+          <RefreshCw className="w-6 h-6 animate-spin" />
+          <span>Loading dashboard...</span>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back! Here's your overview.</p>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Welcome back! Here's what's happening with your store.
+          </p>
+        </div>
+        
+        <div className="mt-4 sm:mt-0 flex items-center space-x-4">
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
+      {/* Date Range Filter */}
+      <div className="bg-white p-4 rounded-lg shadow-sm border">
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+          <div className="flex items-center space-x-2">
+            <Calendar className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">Date Range:</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="date"
+              value={dateRange.startDate}
+              onChange={(e) => handleDateRangeChange('startDate', e.target.value)}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Start Date"
+            />
+            <span className="text-gray-500">to</span>
+            <input
+              type="date"
+              value={dateRange.endDate}
+              onChange={(e) => handleDateRangeChange('endDate', e.target.value)}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="End Date"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((card) => {
-          const Icon = card.icon;
-          const isPositive = card.change >= 0;
-          return (
-            <div key={card.title} className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`${card.color} p-3 rounded-lg`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex items-center gap-1 text-sm">
-                  {isPositive ? (
-                    <TrendingUp className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <TrendingDown className="w-4 h-4 text-red-500" />
-                  )}
-                  <span className={isPositive ? 'text-green-500' : 'text-red-500'}>
-                    {Math.abs(card.change)}%
-                  </span>
-                </div>
+      {dashboardStats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ShoppingCart className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="text-gray-600 text-sm font-medium">{card.title}</h3>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{card.value}</p>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Total Orders</dt>
+                  <dd className="text-2xl font-bold text-gray-900">{dashboardStats.totalOrders}</dd>
+                </dl>
+              </div>
             </div>
-          );
-        })}
+            <div className="mt-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-green-600">Completed: {dashboardStats.completedOrders}</span>
+                <span className="text-yellow-600">Pending: {dashboardStats.pendingOrders}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <DollarSign className="h-8 w-8 text-green-600" />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
+                  <dd className="text-2xl font-bold text-gray-900">
+                    {formatCurrency(dashboardStats.totalRevenue)}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+            <div className="mt-4">
+              <span className="text-sm text-gray-600">
+                Avg Order: {formatCurrency(dashboardStats.averageOrderValue)}
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Users className="h-8 w-8 text-purple-600" />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+                  <dd className="text-2xl font-bold text-gray-900">{dashboardStats.totalUsers}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Package className="h-8 w-8 text-orange-600" />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Total Products</dt>
+                  <dd className="text-2xl font-bold text-gray-900">{dashboardStats.totalProducts}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Orders */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Recent Orders</h3>
+            <a
+              href="/admin/orders"
+              className="text-sm text-blue-600 hover:text-blue-500 flex items-center"
+            >
+              <Eye className="w-4 h-4 mr-1" />
+              View all
+            </a>
+          </div>
+          
+          <div className="space-y-3">
+            {recentOrders && recentOrders.length > 0 ? (
+              recentOrders.slice(0, 5).map((order) => (
+                <div key={order._id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium text-sm">#{order.orderId}</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.orderStatus)}`}>
+                        {order.orderStatus}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {order.user?.firstName} {order.user?.lastName}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-sm">{formatCurrency(order.totalAmount)}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-4">No recent orders</p>
+            )}
+          </div>
+        </div>
+
+        {/* Top Products */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Top Selling Products</h3>
+            <a
+              href="/admin/products"
+              className="text-sm text-blue-600 hover:text-blue-500 flex items-center"
+            >
+              <Eye className="w-4 h-4 mr-1" />
+              View all
+            </a>
+          </div>
+          
+          <div className="space-y-3">
+            {topProducts && topProducts.length > 0 ? (
+              topProducts.slice(0, 5).map((product, index) => (
+                <div key={product._id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                  <div className="flex items-center space-x-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 text-xs font-medium rounded-full flex items-center justify-center">
+                      {index + 1}
+                    </span>
+                    <div>
+                      <p className="font-medium text-sm">{product.name}</p>
+                      <p className="text-xs text-gray-500">{product.totalQuantity} sold</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-sm">{formatCurrency(product.totalRevenue)}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-4">No sales data</p>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Recent Orders */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {recentOrders.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
-                    No orders yet
-                  </td>
-                </tr>
-              ) : (
-                recentOrders.map((order) => (
-                  <tr key={order._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      #{order.orderId || order._id.slice(-6)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {order.userId?.name || order.shippingAddress?.name || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{order.finalAmount?.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                          order.status
-                        )}`}
-                      >
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {/* Quick Actions */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <a
+            href="/admin/products"
+            className="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+          >
+            <Package className="w-8 h-8 text-blue-600 mr-3" />
+            <div>
+              <p className="font-medium text-blue-900">Manage Products</p>
+              <p className="text-sm text-blue-600">Add, edit, or remove products</p>
+            </div>
+          </a>
+          
+          <a
+            href="/admin/orders"
+            className="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+          >
+            <ShoppingCart className="w-8 h-8 text-green-600 mr-3" />
+            <div>
+              <p className="font-medium text-green-900">Process Orders</p>
+              <p className="text-sm text-green-600">Update order status</p>
+            </div>
+          </a>
+          
+          <a
+            href="/admin/users"
+            className="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+          >
+            <Users className="w-8 h-8 text-purple-600 mr-3" />
+            <div>
+              <p className="font-medium text-purple-900">Manage Users</p>
+              <p className="text-sm text-purple-600">View and manage customers</p>
+            </div>
+          </a>
+          
+          <a
+            href="/admin/coupons"
+            className="flex items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
+          >
+            <TrendingUp className="w-8 h-8 text-orange-600 mr-3" />
+            <div>
+              <p className="font-medium text-orange-900">Create Coupons</p>
+              <p className="text-sm text-orange-600">Manage discount codes</p>
+            </div>
+          </a>
         </div>
       </div>
     </div>

@@ -9,23 +9,30 @@ const router = express.Router();
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 
-// Google OAuth
-router.get(
-  '/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    session: false,
-  })
-);
+// Google OAuth (only if properly configured)
+if (process.env.GOOGLE_CLIENT_ID &&
+    process.env.GOOGLE_CLIENT_SECRET &&
+    process.env.GOOGLE_CALLBACK_URL &&
+    process.env.GOOGLE_CLIENT_ID !== 'dummy-client-id' &&
+    process.env.GOOGLE_CLIENT_SECRET !== 'dummy-client-secret') {
 
-router.get(
-  '/google/callback',
-  passport.authenticate('google', {
-    session: false,
-    failureRedirect: `${process.env.FRONTEND_URL}/login?error=google_auth_failed`,
-  }),
-  authController.googleCallback
-);
+  router.get(
+    '/google',
+    passport.authenticate('google', {
+      scope: ['profile', 'email'],
+      session: false,
+    })
+  );
+
+  router.get(
+    '/google/callback',
+    passport.authenticate('google', {
+      session: false,
+      failureRedirect: `${process.env.FRONTEND_URL}/login?error=google_auth_failed`,
+    }),
+    authController.googleCallback
+  );
+}
 
 // Token management
 router.post('/refresh', authController.refreshToken);

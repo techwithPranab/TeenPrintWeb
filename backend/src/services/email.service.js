@@ -1,15 +1,34 @@
 import sgMail from '@sendgrid/mail';
 
-// Initialize SendGrid
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// Initialize SendGrid only if API key is configured
+const isSendGridConfigured = process.env.SENDGRID_API_KEY &&
+  process.env.SENDGRID_FROM_EMAIL &&
+  process.env.SENDGRID_FROM_NAME &&
+  process.env.SENDGRID_API_KEY.startsWith('SG.') &&
+  process.env.SENDGRID_FROM_EMAIL !== 'noreply@teenprint.com';
 
-const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL;
-const FROM_NAME = process.env.SENDGRID_FROM_NAME;
+let sendGridInitialized = false;
+
+if (isSendGridConfigured) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  sendGridInitialized = true;
+  console.log('SendGrid initialized successfully');
+} else {
+  console.log('SendGrid not configured - email features will be disabled');
+}
+
+const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@teenprint.com';
+const FROM_NAME = process.env.SENDGRID_FROM_NAME || 'TeenPrint';
 
 /**
  * Send email using SendGrid
  */
 const sendEmail = async (to, subject, html, text = null) => {
+  if (!sendGridInitialized) {
+    console.log('SendGrid not configured - skipping email send');
+    return;
+  }
+
   try {
     const msg = {
       to,
@@ -19,7 +38,7 @@ const sendEmail = async (to, subject, html, text = null) => {
       },
       subject,
       html,
-      text: text || html.replace(/<[^>]*>/g, ''), // Strip HTML for text version
+      text: text || html.replaceAll(/<[^>]*>/g, ''), // Strip HTML for text version
     };
 
     await sgMail.send(msg);

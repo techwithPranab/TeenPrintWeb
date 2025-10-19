@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useFabricCanvas } from '@/hooks/useFabricCanvas';
-import EditorToolbar from '@/components/editor/EditorToolbar';
-import PropertiesSidebar from '@/components/editor/PropertiesSidebar';
-import CanvasArea from '@/components/editor/CanvasArea';
+import { useFabricCanvas } from '../hooks/useFabricCanvas';
+import EditorToolbar from '../components/editor/EditorToolbar';
+import PropertiesSidebar from '../components/editor/PropertiesSidebar';
+import CanvasArea from '../components/editor/CanvasArea';
 
 const DesignEditor = () => {
   const { productId } = useParams();
