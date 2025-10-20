@@ -8,6 +8,9 @@ const initialState = {
   recentOrders: [],
   topProducts: [],
   
+  // Analytics
+  analyticsData: null,
+  
   // Orders
   orders: [],
   ordersPagination: null,
@@ -53,6 +56,19 @@ export const fetchDashboardStats = createAsyncThunk(
   }
 );
 
+// Analytics
+export const fetchAnalyticsData = createAsyncThunk(
+  'admin/fetchAnalyticsData',
+  async (timeRange, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getAnalyticsData(timeRange);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: error.message });
+    }
+  }
+);
+
 // Orders
 export const fetchAdminOrders = createAsyncThunk(
   'admin/fetchAdminOrders',
@@ -74,7 +90,7 @@ export const updateOrderStatus = createAsyncThunk(
         orderStatus: status,
         ...trackingInfo 
       });
-      return response.data;
+      return response.data.data.order; // Return the order directly
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -99,7 +115,7 @@ export const updateUserRole = createAsyncThunk(
   async ({ userId, role }, { rejectWithValue }) => {
     try {
       const response = await adminAPI.updateUserRole(userId, { role });
-      return response.data;
+      return response.data.data.user; // Return the user directly
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -126,7 +142,7 @@ export const createAdminProduct = createAsyncThunk(
   async (productData, { rejectWithValue }) => {
     try {
       const response = await adminAPI.createProduct(productData);
-      return response.data;
+      return response.data.data.product; // Return the product directly
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -138,7 +154,7 @@ export const updateAdminProduct = createAsyncThunk(
   async ({ productId, productData }, { rejectWithValue }) => {
     try {
       const response = await adminAPI.updateProduct(productId, productData);
-      return response.data;
+      return response.data.data.product; // Return the product directly
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -175,7 +191,7 @@ export const createAdminCoupon = createAsyncThunk(
   async (couponData, { rejectWithValue }) => {
     try {
       const response = await adminAPI.createCoupon(couponData);
-      return response.data;
+      return response.data.data.coupon; // Return the coupon directly
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -187,7 +203,7 @@ export const updateAdminCoupon = createAsyncThunk(
   async ({ couponId, couponData }, { rejectWithValue }) => {
     try {
       const response = await adminAPI.updateCoupon(couponId, couponData);
-      return response.data;
+      return response.data.data.coupon; // Return the coupon directly
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -236,7 +252,7 @@ export const updateContactStatus = createAsyncThunk(
   async ({ contactId, status }, { rejectWithValue }) => {
     try {
       const response = await adminAPI.updateContactStatus(contactId, { status });
-      return response.data;
+      return response.data.data.contact; // Return the contact directly
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: error.message });
     }
@@ -300,6 +316,21 @@ const adminSlice = createSlice({
         state.error = action.payload?.message || 'Failed to fetch dashboard stats';
       });
 
+    // Analytics Data
+    builder
+      .addCase(fetchAnalyticsData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAnalyticsData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.analyticsData = action.payload;
+      })
+      .addCase(fetchAnalyticsData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to fetch analytics data';
+      });
+
     // Admin Orders
     builder
       .addCase(fetchAdminOrders.pending, (state) => {
@@ -328,18 +359,18 @@ const adminSlice = createSlice({
         
         // Update order in the list
         const index = state.orders.findIndex(order => 
-          order._id === action.payload.order._id || 
-          order.orderId === action.payload.order.orderId
+          order._id === action.payload._id || 
+          order.orderId === action.payload.orderId
         );
         if (index !== -1) {
-          state.orders[index] = action.payload.order;
+          state.orders[index] = action.payload;
         }
         
         // Update current order if it matches
         if (state.currentOrder && 
-            (state.currentOrder._id === action.payload.order._id || 
-             state.currentOrder.orderId === action.payload.order.orderId)) {
-          state.currentOrder = action.payload.order;
+            (state.currentOrder._id === action.payload._id || 
+             state.currentOrder.orderId === action.payload.orderId)) {
+          state.currentOrder = action.payload;
         }
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {
@@ -374,9 +405,9 @@ const adminSlice = createSlice({
         state.successMessage = action.payload.message;
         
         // Update user in the list
-        const index = state.users.findIndex(user => user._id === action.payload.user._id);
+        const index = state.users.findIndex(user => user._id === action.payload._id);
         if (index !== -1) {
-          state.users[index] = action.payload.user;
+          state.users[index] = action.payload;
         }
       })
       .addCase(updateUserRole.rejected, (state, action) => {
@@ -408,8 +439,8 @@ const adminSlice = createSlice({
       })
       .addCase(createAdminProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.successMessage = action.payload.message;
-        state.adminProducts.unshift(action.payload.product);
+        state.successMessage = 'Product created successfully';
+        state.adminProducts.unshift(action.payload);
       })
       .addCase(createAdminProduct.rejected, (state, action) => {
         state.loading = false;
@@ -424,17 +455,17 @@ const adminSlice = createSlice({
       })
       .addCase(updateAdminProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.successMessage = action.payload.message;
+        state.successMessage = 'Product updated successfully';
         
         // Update product in the list
-        const index = state.adminProducts.findIndex(product => product._id === action.payload.product._id);
+        const index = state.adminProducts.findIndex(product => product._id === action.payload._id);
         if (index !== -1) {
-          state.adminProducts[index] = action.payload.product;
+          state.adminProducts[index] = action.payload;
         }
         
         // Update current product if it matches
-        if (state.currentProduct && state.currentProduct._id === action.payload.product._id) {
-          state.currentProduct = action.payload.product;
+        if (state.currentProduct && state.currentProduct._id === action.payload._id) {
+          state.currentProduct = action.payload;
         }
       })
       .addCase(updateAdminProduct.rejected, (state, action) => {
@@ -488,8 +519,8 @@ const adminSlice = createSlice({
       })
       .addCase(createAdminCoupon.fulfilled, (state, action) => {
         state.loading = false;
-        state.successMessage = action.payload.message;
-        state.coupons.unshift(action.payload.coupon);
+        state.successMessage = 'Coupon created successfully';
+        state.coupons.unshift(action.payload);
       })
       .addCase(createAdminCoupon.rejected, (state, action) => {
         state.loading = false;
@@ -504,17 +535,17 @@ const adminSlice = createSlice({
       })
       .addCase(updateAdminCoupon.fulfilled, (state, action) => {
         state.loading = false;
-        state.successMessage = action.payload.message;
+        state.successMessage = 'Coupon updated successfully';
         
         // Update coupon in the list
-        const index = state.coupons.findIndex(coupon => coupon._id === action.payload.coupon._id);
+        const index = state.coupons.findIndex(coupon => coupon._id === action.payload._id);
         if (index !== -1) {
-          state.coupons[index] = action.payload.coupon;
+          state.coupons[index] = action.payload;
         }
         
         // Update current coupon if it matches
-        if (state.currentCoupon && state.currentCoupon._id === action.payload.coupon._id) {
-          state.currentCoupon = action.payload.coupon;
+        if (state.currentCoupon && state.currentCoupon._id === action.payload._id) {
+          state.currentCoupon = action.payload;
         }
       })
       .addCase(updateAdminCoupon.rejected, (state, action) => {
@@ -587,14 +618,14 @@ const adminSlice = createSlice({
         state.successMessage = action.payload.message;
         
         // Update contact in the list
-        const index = state.contacts.findIndex(contact => contact._id === action.payload.data.contact._id);
+        const index = state.contacts.findIndex(contact => contact._id === action.payload._id);
         if (index !== -1) {
-          state.contacts[index] = action.payload.data.contact;
+          state.contacts[index] = action.payload;
         }
         
         // Update current contact if it matches
-        if (state.currentContact && state.currentContact._id === action.payload.data.contact._id) {
-          state.currentContact = action.payload.data.contact;
+        if (state.currentContact && state.currentContact._id === action.payload._id) {
+          state.currentContact = action.payload;
         }
       })
       .addCase(updateContactStatus.rejected, (state, action) => {

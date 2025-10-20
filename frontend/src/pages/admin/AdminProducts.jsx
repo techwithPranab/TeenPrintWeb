@@ -5,13 +5,13 @@ import {
   Search,
   Filter,
   Edit,
-  Trash2,
   Eye,
   Package,
   RefreshCw,
   X,
   Save,
   Upload,
+  Trash2,
 } from 'lucide-react';
 import {
   fetchAdminProducts,
@@ -49,7 +49,7 @@ const AdminProducts = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
+    basePrice: '',
     category: '',
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['#000000', '#FFFFFF'],
@@ -113,7 +113,7 @@ const AdminProducts = () => {
       setFormData({
         name: product.name || '',
         description: product.description || '',
-        price: product.price || '',
+        basePrice: product.basePrice || '',
         category: product.category?._id || '',
         sizes: product.sizes || ['S', 'M', 'L', 'XL'],
         colors: product.colors || ['#000000', '#FFFFFF'],
@@ -127,7 +127,7 @@ const AdminProducts = () => {
       setFormData({
         name: '',
         description: '',
-        price: '',
+        basePrice: '',
         category: '',
         sizes: ['S', 'M', 'L', 'XL'],
         colors: ['#000000', '#FFFFFF'],
@@ -147,7 +147,7 @@ const AdminProducts = () => {
     setFormData({
       name: '',
       description: '',
-      price: '',
+      basePrice: '',
       category: '',
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['#000000', '#FFFFFF'],
@@ -231,7 +231,7 @@ const AdminProducts = () => {
     
     const productData = {
       ...formData,
-      price: parseFloat(formData.price),
+      basePrice: parseFloat(formData.basePrice),
     };
 
     if (modalMode === 'create') {
@@ -436,7 +436,7 @@ const AdminProducts = () => {
                       {product.category?.name || 'Uncategorized'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatCurrency(product.price)}
+                      {formatCurrency(product.basePrice)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -609,13 +609,13 @@ const AdminProducts = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Price *
+                            Base Price *
                           </label>
                           <input
                             type="number"
                             step="0.01"
-                            value={formData.price}
-                            onChange={(e) => handleFormChange('price', e.target.value)}
+                            value={formData.basePrice}
+                            onChange={(e) => handleFormChange('basePrice', e.target.value)}
                             disabled={modalMode === 'view'}
                             required
                             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100"

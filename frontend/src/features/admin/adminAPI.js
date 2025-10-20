@@ -61,6 +61,11 @@ export const deleteCoupon = (couponId) => {
   return api.delete(`/admin/coupons/${couponId}`);
 };
 
+// Analytics APIs
+export const getAnalyticsData = (timeRange = '30d') => {
+  return api.get('/admin/analytics', { params: { timeRange } });
+};
+
 // Contacts APIs
 export const getAllContacts = (params) => {
   return api.get('/admin/contacts', { params });

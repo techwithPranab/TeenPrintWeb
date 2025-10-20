@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   LogOut,
+  BarChart3,
 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
@@ -24,6 +25,7 @@ const AdminLayout = () => {
 
   const menuItems = [
     { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/admin/products', label: 'Products', icon: Package },
     { path: '/admin/orders', label: 'Orders', icon: ShoppingCart },
     { path: '/admin/users', label: 'Users', icon: Users },

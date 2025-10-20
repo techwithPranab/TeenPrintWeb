@@ -11,6 +11,9 @@ router.use(authenticate, isAdmin);
 // Dashboard
 router.get('/dashboard', adminController.getDashboardStats);
 
+// Analytics
+router.get('/analytics', adminController.getAnalyticsData);
+
 // Order management
 router.get('/orders', adminController.getAllOrders);
 router.put('/orders/:orderId/status', adminController.updateOrderStatus);

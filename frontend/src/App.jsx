@@ -36,6 +36,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminContacts from './pages/admin/AdminContacts';
+import Analytics from './pages/admin/Analytics';
 import AdminSettings from './pages/admin/AdminSettings';
 
 // Protected Route Component
@@ -97,6 +98,7 @@ function App() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="contacts" element={<AdminContacts />} />
         <Route path="coupons" element={<AdminCoupons />} />
+        <Route path="analytics" element={<Analytics />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
 

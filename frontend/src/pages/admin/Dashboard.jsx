@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   TrendingUp,
@@ -7,7 +7,6 @@ import {
   Users,
   DollarSign,
   Eye,
-  Calendar,
   RefreshCw,
 } from 'lucide-react';
 import { fetchDashboardStats, clearError } from '../../features/admin/adminSlice';
@@ -18,14 +17,9 @@ const Dashboard = () => {
     (state) => state.admin
   );
 
-  const [dateRange, setDateRange] = useState({
-    startDate: '',
-    endDate: '',
-  });
-
   useEffect(() => {
-    dispatch(fetchDashboardStats(dateRange));
-  }, [dispatch, dateRange]);
+    dispatch(fetchDashboardStats());
+  }, [dispatch]);
 
   useEffect(() => {
     if (error) {
@@ -36,15 +30,8 @@ const Dashboard = () => {
     }
   }, [error, dispatch]);
 
-  const handleDateRangeChange = (field, value) => {
-    setDateRange(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
   const handleRefresh = () => {
-    dispatch(fetchDashboardStats(dateRange));
+    dispatch(fetchDashboardStats());
   };
 
   const formatCurrency = (amount) => {
@@ -106,33 +93,6 @@ const Dashboard = () => {
           {error}
         </div>
       )}
-
-      {/* Date Range Filter */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border">
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">Date Range:</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <input
-              type="date"
-              value={dateRange.startDate}
-              onChange={(e) => handleDateRangeChange('startDate', e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="Start Date"
-            />
-            <span className="text-gray-500">to</span>
-            <input
-              type="date"
-              value={dateRange.endDate}
-              onChange={(e) => handleDateRangeChange('endDate', e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="End Date"
-            />
-          </div>
-        </div>
-      </div>
 
       {/* Stats Cards */}
       {dashboardStats && (

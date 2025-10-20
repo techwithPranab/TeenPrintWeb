@@ -9,7 +9,6 @@ import {
   RefreshCw,
   Calendar,
   Percent,
-  DollarSign,
   Users,
   CheckCircle,
   X,
@@ -64,8 +63,8 @@ const AdminCoupons = () => {
   const [couponToDelete, setCouponToDelete] = useState(null);
 
   const couponTypes = [
-    { value: 'percentage', label: 'Percentage', icon: Percent },
-    { value: 'fixed', label: 'Fixed Amount', icon: DollarSign },
+    { value: 'percentage', label: 'Percentage' },
+    { value: 'fixed', label: 'Fixed Amount' },
   ];
 
   const today = new Date().toISOString().split('T')[0];
@@ -430,7 +429,7 @@ const AdminCoupons = () => {
                           </span>
                         ) : (
                           <span className="flex items-center">
-                            <DollarSign className="w-4 h-4 mr-1 text-green-600" />
+                            <span className="w-4 h-4 mr-1 text-green-600 font-bold text-sm flex items-center justify-center">₹</span>
                             {formatCurrency(coupon.value)}
                           </span>
                         )}
@@ -636,7 +635,7 @@ const AdminCoupons = () => {
                                 </>
                               ) : (
                                 <>
-                                  <DollarSign className="w-4 h-4 mr-1 text-green-600" />
+                                  <span className="w-4 h-4 mr-1 text-green-600 font-bold text-sm flex items-center justify-center">₹</span>
                                   Fixed Amount
                                 </>
                               )}
