@@ -12,6 +12,7 @@ import {
   X,
   LogOut,
   BarChart3,
+  Phone,
 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../features/auth/authSlice';
@@ -30,6 +31,7 @@ const AdminLayout = () => {
     { path: '/admin/orders', label: 'Orders', icon: ShoppingCart },
     { path: '/admin/users', label: 'Users', icon: Users },
     { path: '/admin/contacts', label: 'Contacts', icon: MessageSquare },
+    { path: '/admin/contact-info', label: 'Contact Info', icon: Phone },
     { path: '/admin/coupons', label: 'Coupons', icon: Tag },
     { path: '/admin/settings', label: 'Settings', icon: Settings },
   ];

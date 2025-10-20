@@ -1,5 +1,34 @@
 import Contact from '../models/Contact.model.js';
+import ContactInfo from '../models/ContactInfo.model.js';
 import { sendContactNotificationEmail } from '../services/email.service.js';
+
+/**
+ * Get contact information (Public)
+ */
+export const getContactInfo = async (req, res) => {
+  try {
+    const contactInfo = await ContactInfo.findOne();
+
+    if (!contactInfo) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact information not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { contactInfo },
+    });
+  } catch (error) {
+    console.error('Get contact info error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch contact information',
+      error: error.message,
+    });
+  }
+};
 
 /**
  * Submit contact form

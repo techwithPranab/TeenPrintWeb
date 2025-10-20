@@ -1,34 +1,93 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { MapPin, Phone, Mail, Clock, Send, Loader2, CheckCircle } from 'lucide-react';
-import { submitContactForm } from '../features/contact/contactAPI';
+import { submitContactForm, getContactInfo } from '../features/contact/contactAPI';
 
 const ContactUs = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [contactInfo, setContactInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const contactInfo = [
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const response = await getContactInfo();
+        console.log('Fetched contact info:', response.data);
+        setContactInfo(response.data.contactInfo);
+      } catch (error) {
+        console.error('Failed to fetch contact info:', error);
+        // Fallback to default contact info if API fails
+        setContactInfo({
+          address: {
+            street: '123 Print Street, Design Colony',
+            city: 'Mumbai',
+            state: 'Maharashtra',
+            pincode: '400001',
+            country: 'India'
+          },
+          phoneNumbers: [
+            { number: '+91 98765 43210', label: 'Support' },
+            { number: '+91 98765 43211', label: 'Orders' }
+          ],
+          emailAddresses: [
+            { email: 'support@teenprintweb.com', label: 'Support' },
+            { email: 'orders@teenprintweb.com', label: 'Orders' }
+          ],
+          businessHours: [
+            { day: 'monday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+            { day: 'tuesday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+            { day: 'wednesday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+            { day: 'thursday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+            { day: 'friday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+            { day: 'saturday', hours: '10:00 AM - 4:00 PM', isOpen: true },
+            { day: 'sunday', hours: 'Closed', isOpen: false }
+          ]
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContactInfo();
+  }, []);
+
+  const contactInfoDisplay = contactInfo ? [
     {
       icon: MapPin,
       title: 'Address',
-      details: ['123 Print Street, Design Colony', 'Mumbai, Maharashtra 400001', 'India'],
+      details: [
+        `${contactInfo.address?.street || '123 Print Street, Design Colony'}`,
+        `${contactInfo.address?.city || 'Mumbai'}, ${contactInfo.address?.state || 'Maharashtra'} ${contactInfo.address?.pincode || '400001'}`,
+        `${contactInfo.address?.country || 'India'}`
+      ],
     },
     {
       icon: Phone,
       title: 'Phone',
-      details: ['+91 98765 43210', '+91 98765 43211'],
+      details: contactInfo.phoneNumbers?.map(phone => `${phone.number}${phone.label ? ` (${phone.label})` : ''}`) || ['+91 98765 43210 (Support)', '+91 98765 43211 (Orders)'],
     },
     {
       icon: Mail,
       title: 'Email',
-      details: ['support@teenprintweb.com', 'orders@teenprintweb.com'],
+      details: contactInfo.emailAddresses?.map(email => `${email.email}${email.label ? ` (${email.label})` : ''}`) || ['support@teenprintweb.com (Support)', 'orders@teenprintweb.com (Orders)'],
     },
     {
       icon: Clock,
       title: 'Business Hours',
-      details: ['Monday - Friday: 9:00 AM - 6:00 PM', 'Saturday: 10:00 AM - 4:00 PM', 'Sunday: Closed'],
+      details: contactInfo.businessHours?.filter(hour => hour.isOpen).map(hour => {
+        const dayName = hour.day.charAt(0).toUpperCase() + hour.day.slice(1);
+        return `${dayName}: ${hour.hours}`;
+      }) || [
+        'Monday: 9:00 AM - 6:00 PM',
+        'Tuesday: 9:00 AM - 6:00 PM',
+        'Wednesday: 9:00 AM - 6:00 PM',
+        'Thursday: 9:00 AM - 6:00 PM',
+        'Friday: 9:00 AM - 6:00 PM',
+        'Saturday: 10:00 AM - 4:00 PM'
+      ],
     },
-  ];
+  ] : [];
 
   const validationSchema = Yup.object({
     name: Yup.string().min(2, 'Name must be at least 2 characters').required('Name is required'),
@@ -72,28 +131,45 @@ const ContactUs = () => {
               </p>
             </div>
 
-            {contactInfo.map((info, index) => {
-              const Icon = info.icon;
-              return (
-                <div key={index} className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Icon className="w-6 h-6 text-blue-600" />
+            {loading ? (
+              <div className="space-y-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={`loading-${i}`} className="bg-white rounded-lg shadow-md p-6">
+                    <div className="animate-pulse flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                      <div className="flex-1">
+                        <div className="h-4 bg-gray-200 rounded mb-2 w-24"></div>
+                        <div className="h-3 bg-gray-200 rounded mb-1 w-full"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/4"></div>
                       </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">{info.title}</h3>
-                      {info.details.map((detail, idx) => (
-                        <p key={idx} className="text-gray-600 text-sm">
-                          {detail}
-                        </p>
-                      ))}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              contactInfoDisplay.map((info, index) => {
+                const Icon = info.icon;
+                return (
+                  <div key={`contact-${info.title}`} className="bg-white rounded-lg shadow-md p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Icon className="w-6 h-6 text-blue-600" />
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-2">{info.title}</h3>
+                        {info.details.map((detail, idx) => (
+                          <p key={`detail-${info.title}-${idx}`} className="text-gray-600 text-sm">
+                            {detail}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
           {/* Contact Form */}
@@ -241,18 +317,6 @@ const ContactUs = () => {
                   </Form>
                 )}
               </Formik>
-            </div>
-          </div>
-        </div>
-
-        {/* Map Section */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Visit Our Office</h2>
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-              <p className="text-gray-500">
-                Map integration (Google Maps/Mapbox) would go here
-              </p>
             </div>
           </div>
         </div>

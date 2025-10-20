@@ -2,6 +2,10 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Palette, Shirt, Coffee, Gift, ArrowRight, Star } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 import { fetchFeaturedProducts } from '../features/products/productSlice';
 import { fetchCategories } from '../features/categories/categorySlice';
 import ProductCard from '../components/products/ProductCard';
@@ -15,6 +19,52 @@ const Home = () => {
     dispatch(fetchFeaturedProducts());
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  // Customer reviews data
+  const customerReviews = [
+    {
+      id: 1,
+      name: "Sarah Johnson",
+      rating: 5,
+      review: "Absolutely love my custom t-shirt! The design tool was so easy to use and the quality is amazing. Fast shipping too!",
+      avatar: "SJ"
+    },
+    {
+      id: 2,
+      name: "Mike Chen",
+      rating: 5,
+      review: "Great experience from start to finish. The mug I designed for my wife came out perfect. Will definitely order again!",
+      avatar: "MC"
+    },
+    {
+      id: 3,
+      name: "Emily Davis",
+      rating: 5,
+      review: "The phone case I customized looks even better in person. The colors are vibrant and the print quality is top-notch.",
+      avatar: "ED"
+    },
+    {
+      id: 4,
+      name: "Alex Rodriguez",
+      rating: 5,
+      review: "Super impressed with the design editor. It's intuitive and has all the features I need. My hoodie turned out fantastic!",
+      avatar: "AR"
+    },
+    {
+      id: 5,
+      name: "Lisa Thompson",
+      rating: 5,
+      review: "Customer service is excellent and the products are high quality. My tote bag design exceeded my expectations!",
+      avatar: "LT"
+    },
+    {
+      id: 6,
+      name: "David Kim",
+      rating: 5,
+      review: "Love how easy it is to create personalized gifts. The pillow I made for my mom was a hit. Highly recommend!",
+      avatar: "DK"
+    }
+  ];
 
   return (
     <div className="min-h-screen">
@@ -198,6 +248,69 @@ const Home = () => {
                 Place your order and we'll deliver to your doorstep
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Customer Reviews Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              What Our Customers Say
+            </h2>
+            <p className="text-lg text-gray-600">
+              Join thousands of satisfied customers who love creating with us
+            </p>
+          </div>
+
+          <div className="relative">
+            <Swiper
+              modules={[Autoplay, Pagination]}
+              spaceBetween={30}
+              slidesPerView={1}
+              centeredSlides={true}
+              autoplay={{
+                delay: 5000,
+                disableOnInteraction: false,
+              }}
+              pagination={{
+                clickable: true,
+                dynamicBullets: true,
+              }}
+              breakpoints={{
+                640: {
+                  slidesPerView: 2,
+                  centeredSlides: false,
+                },
+                1024: {
+                  slidesPerView: 3,
+                  centeredSlides: false,
+                },
+              }}
+              className="pb-12"
+            >
+              {customerReviews.map((review) => (
+                <SwiperSlide key={review.id}>
+                  <div className="bg-gray-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300 h-full">
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-lg mr-4">
+                        {review.avatar}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{review.name}</h4>
+                        <div className="flex items-center">
+                          {Array.from({ length: review.rating }, (_, i) => (
+                            <Star key={`${review.id}-star-${i}`} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 italic">"{review.review}"</p>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       </section>

@@ -13,6 +13,7 @@ import Category from './src/models/Category.model.js';
 import Product from './src/models/Product.model.js';
 import User from './src/models/User.model.js';
 import Coupon from './src/models/Coupon.model.js';
+import ContactInfo from './src/models/ContactInfo.model.js';
 
 import bcrypt from 'bcryptjs';
 
@@ -30,6 +31,7 @@ const seedDatabase = async () => {
     await Product.deleteMany({});
     await User.deleteMany({});
     await Coupon.deleteMany({});
+    await ContactInfo.deleteMany({});
 
     // Seed categories
     console.log('Seeding categories...');
@@ -89,12 +91,44 @@ const seedDatabase = async () => {
     const coupons = await Coupon.insertMany(couponsWithCategories);
     console.log(`✅ Created ${coupons.length} coupons`);
 
+    // Seed contact info
+    console.log('Seeding contact information...');
+    const contactInfoData = {
+      address: {
+        street: '123 Print Street, Design Colony',
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        pincode: '400001',
+        country: 'India'
+      },
+      phoneNumbers: [
+        { number: '+91 98765 43210', label: 'Support' },
+        { number: '+91 98765 43211', label: 'Orders' }
+      ],
+      emailAddresses: [
+        { email: 'support@teenprintweb.com', label: 'Support' },
+        { email: 'orders@teenprintweb.com', label: 'Orders' }
+      ],
+      businessHours: [
+        { day: 'monday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+        { day: 'tuesday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+        { day: 'wednesday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+        { day: 'thursday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+        { day: 'friday', hours: '9:00 AM - 6:00 PM', isOpen: true },
+        { day: 'saturday', hours: '10:00 AM - 4:00 PM', isOpen: true },
+        { day: 'sunday', hours: 'Closed', isOpen: false }
+      ]
+    };
+    const contactInfo = await ContactInfo.create(contactInfoData);
+    console.log('✅ Created contact information');
+
     console.log('\n🎉 Database seeded successfully!');
     console.log('\n📋 Seed Summary:');
     console.log(`   Categories: ${categories.length}`);
     console.log(`   Products: ${products.length}`);
     console.log(`   Users: ${users.length}`);
     console.log(`   Coupons: ${coupons.length}`);
+    console.log(`   Contact Info: 1`);
 
     console.log('\n🔐 Admin Credentials:');
     console.log('   Email: admin@teenprint.com');

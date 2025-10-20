@@ -3,6 +3,7 @@ import User from '../models/User.model.js';
 import Product from '../models/Product.model.js';
 import Coupon from '../models/Coupon.model.js';
 import Contact from '../models/Contact.model.js';
+import ContactInfo from '../models/ContactInfo.model.js';
 import { sendOrderStatusEmail } from '../services/email.service.js';
 
 /**
@@ -1040,6 +1041,70 @@ export const deleteContact = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to delete contact',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get contact information
+ */
+export const getContactInfo = async (req, res) => {
+  try {
+    const contactInfo = await ContactInfo.findOne();
+
+    if (!contactInfo) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact information not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { contactInfo },
+    });
+  } catch (error) {
+    console.error('Get contact info error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch contact information',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Update contact information
+ */
+export const updateContactInfo = async (req, res) => {
+  try {
+    const updateData = req.body;
+
+    let contactInfo = await ContactInfo.findOne();
+
+    if (contactInfo) {
+      // Update existing contact info
+      contactInfo = await ContactInfo.findByIdAndUpdate(
+        contactInfo._id,
+        updateData,
+        { new: true, runValidators: true }
+      );
+    } else {
+      // Create new contact info if none exists
+      contactInfo = await ContactInfo.create(updateData);
+    }
+
+    res.json({
+      success: true,
+      message: 'Contact information updated successfully',
+      data: { contactInfo },
+    });
+  } catch (error) {
+    console.error('Update contact info error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update contact information',
       error: error.message,
     });
   }

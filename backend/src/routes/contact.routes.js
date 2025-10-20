@@ -1,12 +1,14 @@
 import express from 'express';
 import * as contactController from '../controllers/contact.controller.js';
+import * as adminController from '../controllers/admin.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { isAdmin } from '../middleware/admin.middleware.js';
 
 const router = express.Router();
 
-// Public route - submit contact form
+// Public routes
 router.post('/', contactController.submitContactForm);
+router.get('/info', contactController.getContactInfo);
 
 // Admin routes - require authentication and admin role
 router.get('/', authenticate, isAdmin, contactController.getAllContacts);

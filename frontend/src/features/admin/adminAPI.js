@@ -82,3 +82,12 @@ export const updateContactStatus = (contactId, statusData) => {
 export const deleteContact = (contactId) => {
   return api.delete(`/admin/contacts/${contactId}`);
 };
+
+// Contact Info APIs
+export const getContactInfo = () => {
+  return api.get('/admin/contact-info');
+};
+
+export const updateContactInfo = (contactInfoData) => {
+  return api.put('/admin/contact-info', contactInfoData);
+};

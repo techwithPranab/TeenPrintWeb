@@ -40,4 +40,8 @@ router.get('/contacts/:id', adminController.getContactById);
 router.put('/contacts/:id/status', adminController.updateContactStatus);
 router.delete('/contacts/:id', adminController.deleteContact);
 
+// Contact info management
+router.get('/contact-info', adminController.getContactInfo);
+router.put('/contact-info', adminController.updateContactInfo);
+
 export default router;
