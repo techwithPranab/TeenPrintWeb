@@ -17,6 +17,7 @@ import orderRoutes from './routes/order.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import contactRoutes from './routes/contact.routes.js';
 import reviewRoutes from './routes/review.routes.js';
+import statsRoutes from './routes/stats.routes.js';
 
 const app = express();
 
@@ -77,6 +78,7 @@ app.use(`/api/${API_VERSION}/orders`, orderRoutes);
 app.use(`/api/${API_VERSION}/admin`, adminRoutes);
 app.use(`/api/${API_VERSION}/contact`, contactRoutes);
 app.use(`/api/${API_VERSION}/reviews`, reviewRoutes);
+app.use(`/api/${API_VERSION}/stats`, statsRoutes);
 
 // 404 handler
 app.use((req, res) => {

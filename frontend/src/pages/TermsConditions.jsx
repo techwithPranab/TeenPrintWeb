@@ -1,173 +1,252 @@
-import { FileText } from 'lucide-react';
+import { Scale, Shield, User, CreditCard, Package, AlertTriangle, Mail, Phone } from 'lucide-react';
 
 const TermsConditions = () => {
+  const sections = [
+    {
+      title: "Account Terms",
+      icon: <User className="w-6 h-6" />,
+      content: [
+        "You must be at least 18 years old to create an account and place orders",
+        "You are responsible for maintaining the security of your account credentials",
+        "You must provide accurate and complete information when registering",
+        "You may not use our service for any illegal or unauthorized purpose",
+        "We reserve the right to suspend or terminate accounts that violate these terms"
+      ]
+    },
+    {
+      title: "Orders & Payment",
+      icon: <CreditCard className="w-6 h-6" />,
+      content: [
+        "All orders are subject to acceptance and availability",
+        "Prices are subject to change without notice until order confirmation",
+        "Payment must be completed at the time of order placement",
+        "We accept major credit cards, debit cards, and digital payment methods",
+        "Orders cannot be modified or cancelled once production has begun"
+      ]
+    },
+    {
+      title: "Product & Design",
+      icon: <Package className="w-6 h-6" />,
+      content: [
+        "You retain ownership of your original designs and uploaded content",
+        "You grant us permission to use your designs solely for order fulfillment",
+        "You are responsible for ensuring your designs don't infringe on third-party rights",
+        "We reserve the right to refuse orders containing inappropriate content",
+        "Product colors may vary slightly from what appears on your screen"
+      ]
+    },
+    {
+      title: "Shipping & Delivery",
+      icon: <Package className="w-6 h-6" />,
+      content: [
+        "Delivery timeframes are estimates and not guarantees",
+        "Risk of loss transfers to you upon delivery to the shipping address",
+        "You must inspect items upon delivery and report issues within 7 days",
+        "Additional charges may apply for expedited shipping or remote locations",
+        "We are not responsible for delays caused by customs or shipping carriers"
+      ]
+    }
+  ];
+
+  const restrictions = [
+    "Copyrighted material without proper authorization",
+    "Trademarked content without permission from the trademark owner",
+    "Offensive, discriminatory, or hate speech content",
+    "Violent, graphic, or disturbing imagery",
+    "Content that violates any applicable laws or regulations",
+    "Personal information of others without their consent",
+    "Content that promotes illegal activities or substances"
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
+      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <FileText className="w-16 h-16 mx-auto mb-4" />
-          <h1 className="text-5xl font-bold mb-4">Terms & Conditions</h1>
-          <p className="text-xl">Last updated: October 18, 2025</p>
+          <Scale className="w-16 h-16 mx-auto mb-6" />
+          <h1 className="text-4xl sm:text-5xl font-bold mb-6">
+            Terms & Conditions
+          </h1>
+          <p className="text-xl max-w-3xl mx-auto">
+            These terms govern your use of TeenPrintWeb services. By using our platform, 
+            you agree to be bound by these terms and conditions.
+          </p>
+          <p className="mt-4 text-blue-200">
+            Effective Date: October 20, 2025
+          </p>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white rounded-lg shadow-md p-8 space-y-8">
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Acceptance of Terms</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              By accessing and using TeenPrintWeb ("the Website"), you accept and agree to be bound by the terms and
-              provisions of this agreement. If you do not agree to abide by these terms, please do not use this
-              service.
+      {/* Introduction */}
+      <section className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Agreement Overview</h2>
+            <p className="text-lg text-gray-600">
+              Welcome to TeenPrintWeb! These Terms and Conditions ("Terms") constitute a legally 
+              binding agreement between you and TeenPrintWeb regarding your use of our custom 
+              printing services and website.
             </p>
-          </section>
+          </div>
 
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Use of Service</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              You agree to use the Website for lawful purposes only. You are prohibited from:
-            </p>
-            <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-              <li>Uploading or transmitting content that infringes upon intellectual property rights</li>
-              <li>Engaging in any activity that could harm or disrupt the service</li>
-              <li>Attempting to gain unauthorized access to any portion of the Website</li>
-              <li>Using the service for any illegal or unauthorized purpose</li>
-              <li>Impersonating any person or entity</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Account Registration</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              To use certain features of the Website, you must register for an account. You agree to:
-            </p>
-            <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-              <li>Provide accurate, current, and complete information</li>
-              <li>Maintain and promptly update your account information</li>
-              <li>Maintain the security of your password</li>
-              <li>Accept responsibility for all activities under your account</li>
-              <li>Notify us immediately of any unauthorized use of your account</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Orders and Payments</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              All orders placed through the Website are subject to acceptance and availability. We reserve the right
-              to refuse or cancel any order for any reason, including:
-            </p>
-            <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-              <li>Product availability</li>
-              <li>Errors in product or pricing information</li>
-              <li>Suspected fraudulent or unauthorized transactions</li>
-              <li>Content that violates our policies or applicable laws</li>
-            </ul>
-            <p className="text-gray-700 leading-relaxed mt-4">
-              Payment is due at the time of order placement. We accept major credit cards, debit cards, UPI, net
-              banking, and cash on delivery (where available).
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Intellectual Property</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              All content on the Website, including but not limited to text, graphics, logos, images, and software,
-              is the property of TeenPrintWeb or its content suppliers and is protected by intellectual property laws.
-            </p>
-            <p className="text-gray-700 leading-relaxed">
-              By uploading designs or content to our platform, you grant TeenPrintWeb a non-exclusive license to use,
-              reproduce, and display your content solely for the purpose of fulfilling your order.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Custom Designs</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              You are solely responsible for ensuring that any designs or content you upload do not infringe upon
-              third-party intellectual property rights. You warrant that:
-            </p>
-            <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-              <li>You own or have the right to use all uploaded content</li>
-              <li>Your designs do not violate any laws or regulations</li>
-              <li>Your designs do not contain offensive, defamatory, or inappropriate content</li>
-            </ul>
-            <p className="text-gray-700 leading-relaxed mt-4">
-              We reserve the right to refuse to print any design that we deem inappropriate or that violates our
-              content policies.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Product Quality and Returns</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              We strive to ensure the highest quality products. However, due to the custom nature of our products:
-            </p>
-            <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-              <li>Slight variations in color may occur due to screen differences</li>
-              <li>Custom-designed products are generally non-returnable unless defective</li>
-              <li>Returns are accepted within 7 days for manufacturing defects</li>
-              <li>Refunds will be processed according to our Refund Policy</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Shipping and Delivery</h2>
-            <p className="text-gray-700 leading-relaxed">
-              We make every effort to deliver products within the estimated timeframe. However, delivery times are
-              estimates and not guaranteed. We are not responsible for delays caused by shipping carriers, customs,
-              or circumstances beyond our control.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Limitation of Liability</h2>
-            <p className="text-gray-700 leading-relaxed">
-              To the maximum extent permitted by law, TeenPrintWeb shall not be liable for any indirect, incidental,
-              special, consequential, or punitive damages resulting from your use or inability to use the service,
-              unauthorized access to your data, or any other matter relating to the service.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Privacy</h2>
-            <p className="text-gray-700 leading-relaxed">
-              Your use of the Website is also governed by our Privacy Policy. Please review our Privacy Policy to
-              understand our practices regarding the collection and use of your personal information.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Modifications to Terms</h2>
-            <p className="text-gray-700 leading-relaxed">
-              We reserve the right to modify these Terms & Conditions at any time. Changes will be effective
-              immediately upon posting to the Website. Your continued use of the Website following any changes
-              constitutes acceptance of those changes.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Governing Law</h2>
-            <p className="text-gray-700 leading-relaxed">
-              These Terms & Conditions shall be governed by and construed in accordance with the laws of India.
-              Any disputes arising under or in connection with these terms shall be subject to the exclusive
-              jurisdiction of the courts in Mumbai, India.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Contact Information</h2>
-            <p className="text-gray-700 leading-relaxed">
-              If you have any questions about these Terms & Conditions, please contact us at:
-            </p>
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-700">Email: legal@teenprintweb.com</p>
-              <p className="text-gray-700">Phone: +91 98765 43210</p>
-              <p className="text-gray-700">Address: 123 Print Street, Design Colony, Mumbai, Maharashtra 400001</p>
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-6">
+            <div className="flex items-start">
+              <AlertTriangle className="w-6 h-6 text-blue-600 mt-1 mr-3" />
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Important Notice</h3>
+                <p className="text-gray-700">
+                  By accessing or using our services, you agree to comply with and be bound by these Terms. 
+                  If you do not agree with any part of these terms, you must not use our services.
+                </p>
+              </div>
             </div>
-          </section>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Main Terms Sections */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Terms of Service</h2>
+            <p className="text-lg text-gray-600">
+              Please read these terms carefully before using our services
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {sections.map((section, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mr-4">
+                    {section.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900">{section.title}</h3>
+                </div>
+                <ul className="space-y-3">
+                  {section.content.map((item, idx) => (
+                    <li key={idx} className="flex items-start">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                      <span className="text-gray-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Content Restrictions */}
+      <section className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Content Restrictions</h2>
+            <p className="text-lg text-gray-600">
+              The following types of content are strictly prohibited on our platform
+            </p>
+          </div>
+
+          <div className="bg-red-50 border-l-4 border-red-400 p-6 mb-8">
+            <div className="flex items-start">
+              <AlertTriangle className="w-6 h-6 text-red-600 mt-1 mr-3" />
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Prohibited Content</h3>
+                <p className="text-gray-700 mb-4">
+                  We reserve the right to refuse, cancel, or remove any content that violates these restrictions:
+                </p>
+                <ul className="space-y-2">
+                  {restrictions.map((restriction, index) => (
+                    <li key={index} className="flex items-start">
+                      <div className="w-2 h-2 bg-red-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                      <span className="text-gray-700">{restriction}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6">
+            <h3 className="font-semibold text-gray-900 mb-2">Content Review Process</h3>
+            <p className="text-gray-700">
+              All uploaded designs undergo automated and manual review processes. Orders containing 
+              prohibited content will be cancelled, and refunds will be processed according to our 
+              refund policy. Repeated violations may result in account suspension.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Intellectual Property */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Intellectual Property Rights</h2>
+          </div>
+
+          <div className="space-y-8">
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Your Rights</h3>
+              <ul className="space-y-3 text-gray-700">
+                <li className="flex items-start">
+                  <Shield className="w-5 h-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
+                  You retain full ownership of your original designs and creative content
+                </li>
+                <li className="flex items-start">
+                  <Shield className="w-5 h-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
+                  You grant us a limited license to reproduce your designs for order fulfillment only
+                </li>
+                <li className="flex items-start">
+                  <Shield className="w-5 h-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
+                  We will not use your designs for any purpose other than completing your order
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Your Responsibilities</h3>
+              <ul className="space-y-3 text-gray-700">
+                <li className="flex items-start">
+                  <AlertTriangle className="w-5 h-5 text-orange-600 mt-1 mr-3 flex-shrink-0" />
+                  You must own or have proper authorization for all content you upload
+                </li>
+                <li className="flex items-start">
+                  <AlertTriangle className="w-5 h-5 text-orange-600 mt-1 mr-3 flex-shrink-0" />
+                  You are liable for any intellectual property infringement claims
+                </li>
+                <li className="flex items-start">
+                  <AlertTriangle className="w-5 h-5 text-orange-600 mt-1 mr-3 flex-shrink-0" />
+                  You must indemnify TeenPrintWeb against any claims arising from your content
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Information */}
+      <section className="py-16 bg-blue-600 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold mb-6">Questions About Our Terms?</h2>
+          <p className="text-xl mb-8">
+            If you have any questions about these Terms & Conditions, please contact us.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <div className="flex items-center gap-3">
+              <Mail className="w-6 h-6" />
+              <span>legal@teenprintweb.com</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Phone className="w-6 h-6" />
+              <span>+91 9876543210</span>
+            </div>
+          </div>
+          <p className="mt-6 text-blue-200">
+            Legal Department: Monday - Friday, 9:00 AM - 6:00 PM IST
+          </p>
+        </div>
+      </section>
     </div>
   );
 };

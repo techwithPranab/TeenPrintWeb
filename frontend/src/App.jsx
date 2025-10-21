@@ -24,6 +24,9 @@ import TermsConditions from './pages/TermsConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import RefundPolicy from './pages/RefundPolicy';
 import ShippingPolicy from './pages/ShippingPolicy';
+import HowItWorks from './pages/HowItWorks';
+import Blogs from './pages/Blogs';
+import ReturnRefundPolicy from './pages/ReturnRefundPolicy';
 import DesignEditor from './pages/DesignEditor';
 
 // Admin Components
@@ -80,11 +83,14 @@ function App() {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/blog" element={<Blogs />} />
         
         {/* Legal Pages */}
-        <Route path="/terms" element={<TermsConditions />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms-conditions" element={<TermsConditions />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/return-refund-policy" element={<ReturnRefundPolicy />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
 
         {/* Admin Routes */}

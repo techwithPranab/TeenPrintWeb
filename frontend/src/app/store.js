@@ -6,6 +6,7 @@ import cartReducer from '../features/cart/cartSlice';
 import orderReducer from '../features/orders/orderSlice';
 import adminReducer from '../features/admin/adminSlice';
 import reviewsReducer from '../features/reviews/reviewsSlice';
+import statsReducer from '../features/stats/statsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     orders: orderReducer,
     admin: adminReducer,
     reviews: reviewsReducer,
+    stats: statsReducer,
     // TODO: Add more reducers
     // editor: editorReducer,
   },
