@@ -13,7 +13,7 @@ const orderItemSchema = new mongoose.Schema({
   design: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Design',
-    required: true,
+    required: false,
   },
   designSnapshot: {
     // Store design data at time of order
@@ -104,6 +104,10 @@ const orderSchema = new mongoose.Schema(
       discount: {
         type: Number,
         default: 0,
+      },
+      coupon: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Coupon',
       },
       couponCode: String,
       shippingCharges: {

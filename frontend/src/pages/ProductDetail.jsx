@@ -29,11 +29,11 @@ const ProductDetail = () => {
   useEffect(() => {
     if (product) {
       // Set default selections
-      if (product.specifications?.sizes?.length > 0) {
-        setSelectedSize(product.specifications.sizes[0]);
+      if (product.sizes?.length > 0) {
+        setSelectedSize(product.sizes[0].name);
       }
-      if (product.specifications?.colors?.length > 0) {
-        setSelectedColor(product.specifications.colors[0]);
+      if (product.colors?.length > 0) {
+        setSelectedColor(product.colors[0].hexCode);
       }
     }
   }, [product]);
@@ -55,8 +55,8 @@ const ProductDetail = () => {
         addToCart({
           productId: product._id,
           quantity,
-          selectedSize,
-          selectedColor,
+          size: selectedSize,
+          color: selectedColor,
         })
       ).unwrap();
       alert('Product added to cart!');
@@ -216,23 +216,23 @@ const ProductDetail = () => {
             </div>
 
             {/* Size Selection */}
-            {product.specifications?.sizes && product.specifications.sizes.length > 0 && (
+            {product.sizes && product.sizes.length > 0 && (
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2 text-sm">
                   Size: <span className="text-blue-600 font-medium">{selectedSize}</span>
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {product.specifications.sizes.map((size) => (
+                  {product.sizes.map((size) => (
                     <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
+                      key={size.name}
+                      onClick={() => setSelectedSize(size.name)}
                       className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        selectedSize === size
+                        selectedSize === size.name
                           ? 'bg-blue-600 text-white shadow-sm'
                           : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-500'
                       }`}
                     >
-                      {size}
+                      {size.name}
                     </button>
                   ))}
                 </div>
@@ -240,21 +240,21 @@ const ProductDetail = () => {
             )}
 
             {/* Color Selection */}
-            {product.specifications?.colors && product.specifications.colors.length > 0 && (
+            {product.colors && product.colors.length > 0 && (
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2 text-sm">Color</h3>
                 <div className="flex flex-wrap gap-2">
-                  {product.specifications.colors.map((color) => (
+                  {product.colors.map((color) => (
                     <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
+                      key={color.hexCode}
+                      onClick={() => setSelectedColor(color.hexCode)}
                       className={`w-10 h-10 rounded-md border-2 transition-all ${
-                        selectedColor === color
+                        selectedColor === color.hexCode
                           ? 'border-blue-500 shadow-sm scale-110'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
-                      style={{ backgroundColor: color }}
-                      title={color}
+                      style={{ backgroundColor: color.hexCode }}
+                      title={color.name}
                     />
                   ))}
                 </div>

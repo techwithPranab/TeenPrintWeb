@@ -1,13 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-const CanvasArea = ({ canvasRef, onCanvasInit }) => {
+const CanvasArea = ({ canvasRef }) => {
   const containerRef = useRef(null);
-
-  useEffect(() => {
-    if (canvasRef.current && onCanvasInit) {
-      onCanvasInit();
-    }
-  }, [canvasRef, onCanvasInit]);
 
   return (
     <div className="flex-1 bg-gray-100 overflow-auto">

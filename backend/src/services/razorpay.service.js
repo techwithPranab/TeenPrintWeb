@@ -3,22 +3,31 @@ import crypto from 'crypto';
 
 /**
  * Create Razorpay Order
- * @param {Number} amount - Amount in rupees
- * @param {String} orderId - Our order ID
- * @param {Object} customerInfo - Customer details
+ * @param {Object} orderData - Order data
+ * @param {Number} orderData.amount - Amount in rupees
+ * @param {String} orderData.orderId - Our order ID
+ * @param {String} orderData.receipt - Receipt ID
+ * @param {Object} orderData.customerInfo - Customer details (optional)
  */
-export const createRazorpayOrder = async (amount, orderId, customerInfo) => {
+export const createRazorpayOrder = async ({ amount, orderId, receipt, customerInfo }) => {
+  if (!razorpayInstance) {
+    throw new Error('Razorpay not configured');
+  }
+  
   try {
     const options = {
       amount: Math.round(amount * 100), // Amount in paise
       currency: 'INR',
-      receipt: orderId,
-      notes: {
+      receipt: receipt || orderId,
+    };
+
+    if (customerInfo) {
+      options.notes = {
         orderId: orderId,
         customerName: customerInfo.name,
         customerEmail: customerInfo.email,
-      },
-    };
+      };
+    }
 
     const razorpayOrder = await razorpayInstance.orders.create(options);
     return razorpayOrder;
@@ -34,6 +43,10 @@ export const createRazorpayOrder = async (amount, orderId, customerInfo) => {
  * @param {String} signature - Razorpay signature
  */
 export const verifyPaymentSignature = (orderId, paymentId, signature) => {
+  if (!razorpayInstance) {
+    throw new Error('Razorpay not configured');
+  }
+  
   try {
     const generatedSignature = crypto
       .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)

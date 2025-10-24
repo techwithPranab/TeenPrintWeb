@@ -9,7 +9,7 @@ const cartItemSchema = new mongoose.Schema({
   design: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Design',
-    required: true,
+    required: false, // Made optional for direct product purchases
   },
   size: {
     type: String,

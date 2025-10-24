@@ -16,6 +16,10 @@ export const useFabricCanvas = (canvasRef) => {
       preserveObjectStacking: true,
     });
 
+    // Disable font loading to prevent issues
+    fabricCanvas.skipTargetFind = false;
+    fabricCanvas.skipOffscreen = false;
+
     // Event listeners
     fabricCanvas.on('selection:created', (e) => {
       setActiveObject(e.selected[0]);
@@ -43,19 +47,43 @@ export const useFabricCanvas = (canvasRef) => {
   const addText = (text = 'Double click to edit') => {
     if (!canvas) return;
 
-    const textObj = new fabric.IText(text, {
-      left: canvas.width / 2,
-      top: canvas.height / 2,
-      fontSize: 40,
-      fill: '#000000',
-      fontFamily: 'Arial',
-      originX: 'center',
-      originY: 'center',
-    });
+    try {
+      // Ensure text is a string
+      const textContent = typeof text === 'string' ? text : 'Double click to edit';
 
-    canvas.add(textObj);
-    canvas.setActiveObject(textObj);
-    canvas.renderAll();
+      const textObj = new fabric.IText(textContent, {
+        left: canvas.width / 2,
+        top: canvas.height / 2,
+        fontSize: 40,
+        fill: '#000000',
+        fontFamily: 'Arial',
+        originX: 'center',
+        originY: 'center',
+      });
+
+      canvas.add(textObj);
+      canvas.setActiveObject(textObj);
+      canvas.renderAll();
+    } catch (error) {
+      console.error('Error adding text to canvas:', error);
+      // Fallback: try with a simple text object
+      try {
+        const fallbackText = new fabric.Text('Double click to edit', {
+          left: canvas.width / 2,
+          top: canvas.height / 2,
+          fontSize: 40,
+          fill: '#000000',
+          fontFamily: 'Arial',
+          originX: 'center',
+          originY: 'center',
+        });
+        canvas.add(fallbackText);
+        canvas.setActiveObject(fallbackText);
+        canvas.renderAll();
+      } catch (fallbackError) {
+        console.error('Fallback text addition also failed:', fallbackError);
+      }
+    }
   };
 
   const addImage = (imageUrl) => {

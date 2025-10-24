@@ -36,32 +36,42 @@ export const createOrder = async (req, res) => {
     const orderData = {
       user: userId,
       items: cart.items.map((item) => ({
-        product: item.product._id,
-        design: item.design?._id,
+        product: item.product._id || item.product,
+        productName: item.product.name || 'Unknown Product',
+        design: item.design?._id || item.design,
+        designSnapshot: item.design ? {
+          canvasData: item.design.canvasData,
+          previews: item.design.previews,
+        } : null,
+        size: item.size,
+        color: item.color,
         quantity: item.quantity,
         price: item.price,
-        selectedSize: item.selectedSize,
-        selectedColor: item.selectedColor,
-        customizations: item.customizations,
+        subtotal: item.subtotal,
       })),
       shippingAddress: {
         fullName: shippingAddress.fullName,
         phone: shippingAddress.phone,
-        email: shippingAddress.email,
-        address: shippingAddress.address,
+        addressLine1: shippingAddress.address,
         city: shippingAddress.city,
         state: shippingAddress.state,
         pincode: shippingAddress.pincode,
         country: shippingAddress.country || 'India',
       },
-      itemsTotal: cart.itemsTotal,
-      discount: cart.discount,
-      taxAmount: cart.taxAmount,
-      shippingCharges: cart.shippingCharges,
-      totalAmount: cart.total,
-      paymentMethod,
-      paymentStatus: paymentMethod === 'cod' ? 'pending' : 'pending',
-      orderStatus: 'pending',
+      pricing: {
+        subtotal: cart.itemsTotal,
+        discount: cart.discount,
+        coupon: cart.coupon,
+        couponCode: cart.couponCode,
+        shippingCharges: cart.shippingCharges,
+        tax: cart.taxAmount,
+        total: cart.total,
+      },
+      payment: {
+        method: paymentMethod,
+        status: paymentMethod === 'cod' ? 'pending' : 'pending',
+      },
+      status: 'pending',
     };
 
     // If coupon was applied, save it
@@ -76,12 +86,12 @@ export const createOrder = async (req, res) => {
     if (paymentMethod === 'razorpay') {
       try {
         const razorpayOrder = await createRazorpayOrder({
-          amount: order.totalAmount,
+          amount: order.pricing.total,
           orderId: order.orderId,
           receipt: order.orderId,
         });
 
-        order.paymentDetails.razorpayOrderId = razorpayOrder.id;
+        order.payment.razorpayOrderId = razorpayOrder.id;
         await order.save();
 
         // Clear cart
@@ -109,12 +119,13 @@ export const createOrder = async (req, res) => {
       }
     } else {
       // For COD, mark order as confirmed
-      order.orderStatus = 'confirmed';
+      order.status = 'processing';
+      order.payment.status = 'pending';
       await order.save();
 
       // Update coupon usage if used
-      if (order.coupon) {
-        await Coupon.findByIdAndUpdate(order.coupon, {
+      if (order.pricing.coupon) {
+        await Coupon.findByIdAndUpdate(order.pricing.coupon, {
           $inc: { usedCount: 1 },
         });
       }
@@ -171,7 +182,7 @@ export const verifyPayment = async (req, res) => {
 
     // Update order
     const order = await Order.findOne({
-      'paymentDetails.razorpayOrderId': razorpayOrderId,
+      'payment.razorpayOrderId': razorpayOrderId,
     });
 
     if (!order) {
@@ -181,15 +192,16 @@ export const verifyPayment = async (req, res) => {
       });
     }
 
-    order.paymentStatus = 'completed';
-    order.paymentDetails.razorpayPaymentId = razorpayPaymentId;
-    order.paymentDetails.razorpaySignature = razorpaySignature;
-    order.orderStatus = 'confirmed';
+    order.payment.status = 'completed';
+    order.payment.razorpayPaymentId = razorpayPaymentId;
+    order.payment.razorpaySignature = razorpaySignature;
+    order.payment.paidAt = new Date();
+    order.status = 'processing';
     await order.save();
 
     // Update coupon usage if used
-    if (order.coupon) {
-      await Coupon.findByIdAndUpdate(order.coupon, {
+    if (order.pricing.coupon) {
+      await Coupon.findByIdAndUpdate(order.pricing.coupon, {
         $inc: { usedCount: 1 },
       });
     }
@@ -227,7 +239,7 @@ export const getOrders = async (req, res) => {
 
     const query = { user: userId };
     if (status) {
-      query.orderStatus = status;
+      query.status = status;
     }
 
     const skip = (page - 1) * limit;
@@ -276,7 +288,7 @@ export const getOrderById = async (req, res) => {
     })
       .populate('items.product', 'name slug mockups basePrice salePrice')
       .populate('items.design', 'name previews canvasData')
-      .populate('coupon', 'code discountType discountValue');
+      .populate('pricing.coupon', 'code discountType discountValue');
 
     if (!order) {
       return res.status(404).json({
@@ -335,14 +347,14 @@ export const cancelOrder = async (req, res) => {
     }
 
     // Check if order can be cancelled
-    if (!['pending', 'confirmed', 'processing'].includes(order.orderStatus)) {
+    if (!['pending', 'processing'].includes(order.status)) {
       return res.status(400).json({
         success: false,
         message: 'Order cannot be cancelled',
       });
     }
 
-    order.orderStatus = 'cancelled';
+    order.status = 'cancelled';
     order.cancelledAt = new Date();
     await order.save();
 

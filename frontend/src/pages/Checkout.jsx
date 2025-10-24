@@ -13,7 +13,7 @@ const Checkout = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { cart } = useSelector((state) => state.cart);
   const { loading } = useSelector((state) => state.orders);
-  const [paymentMethod, setPaymentMethod] = useState('razorpay');
+  const [paymentMethod, setPaymentMethod] = useState('cod');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -68,7 +68,7 @@ const Checkout = () => {
                   razorpaySignature: response.razorpay_signature,
                 })
               ).unwrap();
-              navigate(`/orders/${result.order._id}?success=true`);
+              navigate(`/orders/${result.data.order._id}?success=true`);
             } catch (err) {
               alert('Payment verification failed. Please contact support.');
             }
@@ -87,7 +87,7 @@ const Checkout = () => {
         razorpay.open();
       } else {
         // COD - Navigate directly to order page
-        navigate(`/orders/${result.order._id}?success=true`);
+        navigate(`/orders/${result.data.order._id}?success=true`);
       }
     } catch (error) {
       alert(error.message || 'Failed to create order');
@@ -259,56 +259,6 @@ const Checkout = () => {
                     </div>
                   </div>
 
-                  {/* Payment Method */}
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex items-center gap-2 mb-6">
-                      <CreditCard className="w-6 h-6 text-blue-600" />
-                      <h2 className="text-xl font-semibold text-gray-900">Payment Method</h2>
-                    </div>
-
-                    <div className="space-y-4">
-                      <label className="flex items-start gap-4 p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-600 transition-colors">
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="razorpay"
-                          checked={paymentMethod === 'razorpay'}
-                          onChange={(e) => setPaymentMethod(e.target.value)}
-                          className="mt-1"
-                        />
-                        <div className="flex-grow">
-                          <div className="flex items-center gap-2">
-                            <Wallet className="w-5 h-5 text-blue-600" />
-                            <span className="font-semibold">Online Payment (Razorpay)</span>
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">
-                            Pay securely using Credit/Debit Card, UPI, Net Banking
-                          </p>
-                        </div>
-                      </label>
-
-                      <label className="flex items-start gap-4 p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-600 transition-colors">
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="cod"
-                          checked={paymentMethod === 'cod'}
-                          onChange={(e) => setPaymentMethod(e.target.value)}
-                          className="mt-1"
-                        />
-                        <div className="flex-grow">
-                          <div className="flex items-center gap-2">
-                            <Wallet className="w-5 h-5 text-green-600" />
-                            <span className="font-semibold">Cash on Delivery</span>
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">
-                            Pay when you receive your order
-                          </p>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
                   {/* Place Order Button */}
                   <button
                     type="submit"
@@ -330,6 +280,72 @@ const Checkout = () => {
                 </Form>
               )}
             </Formik>
+
+            {/* Payment Method - Outside Formik Form */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <CreditCard className="w-6 h-6 text-blue-600" />
+                <h2 className="text-xl font-semibold text-gray-900">Payment Method</h2>
+              </div>
+
+              <div className="space-y-4">
+                <div 
+                  className={`flex items-start gap-4 p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                    paymentMethod === 'razorpay' 
+                      ? 'border-blue-600 bg-blue-50' 
+                      : 'border-gray-200 hover:border-blue-600'
+                  }`}
+                  onClick={() => setPaymentMethod('razorpay')}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="razorpay"
+                    checked={paymentMethod === 'razorpay'}
+                    onChange={() => {}}
+                    className="mt-1"
+                    readOnly
+                  />
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="w-5 h-5 text-blue-600" />
+                      <span className="font-semibold">Online Payment (Razorpay)</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Pay securely using Credit/Debit Card, UPI, Net Banking
+                    </p>
+                  </div>
+                </div>
+
+                <div 
+                  className={`flex items-start gap-4 p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                    paymentMethod === 'cod' 
+                      ? 'border-green-600 bg-green-50' 
+                      : 'border-gray-200 hover:border-green-600'
+                  }`}
+                  onClick={() => setPaymentMethod('cod')}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cod"
+                    checked={paymentMethod === 'cod'}
+                    onChange={() => {}}
+                    className="mt-1"
+                    readOnly
+                  />
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="w-5 h-5 text-green-600" />
+                      <span className="font-semibold">Cash on Delivery</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Pay when you receive your order
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Order Summary */}
@@ -351,7 +367,7 @@ const Checkout = () => {
                         {item.product.name}
                       </h3>
                       <p className="text-xs text-gray-600">
-                        {item.selectedSize} • Qty: {item.quantity}
+                        {item.size} • Qty: {item.quantity}
                       </p>
                       <p className="text-sm font-semibold text-gray-900">
                         ₹{item.price * item.quantity}

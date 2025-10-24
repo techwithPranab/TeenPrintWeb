@@ -15,7 +15,6 @@ const DesignEditor = () => {
   const {
     canvas,
     activeObject,
-    initCanvas,
     addText,
     addImage,
     addShape,
@@ -26,13 +25,8 @@ const DesignEditor = () => {
     clearCanvas,
     updateActiveObject,
     exportToJSON,
-    loadFromJSON,
     exportToImage,
   } = useFabricCanvas(canvasRef);
-
-  const handleCanvasInit = () => {
-    initCanvas();
-  };
 
   const handleImageUpload = (event) => {
     const file = event.target.files?.[0];
@@ -91,38 +85,16 @@ const DesignEditor = () => {
     if (!canvas) return;
 
     try {
-      const dataURL = await exportToImage('png', 1.0);
+      const dataURL = await exportToImage('png', 1);
       
       // Create a download link
       const link = document.createElement('a');
       link.href = dataURL;
-      link.download = `${designName.replace(/\s+/g, '_')}.png`;
+      link.download = `${designName.replaceAll(/\s+/g, '_')}.png`;
       link.click();
     } catch (error) {
       console.error('Error exporting image:', error);
       alert('Failed to export image. Please try again.');
-    }
-  };
-
-  const handleLoadDesign = async (designId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/designs/${designId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const design = await response.json();
-        setDesignName(design.name);
-        loadFromJSON(design.canvasData);
-      } else {
-        throw new Error('Failed to load design');
-      }
-    } catch (error) {
-      console.error('Error loading design:', error);
-      alert('Failed to load design. Please try again.');
     }
   };
 
@@ -187,7 +159,7 @@ const DesignEditor = () => {
         />
 
         {/* Canvas Area */}
-        <CanvasArea canvasRef={canvasRef} onCanvasInit={handleCanvasInit} />
+        <CanvasArea canvasRef={canvasRef} />
 
         {/* Properties Sidebar */}
         <PropertiesSidebar activeObject={activeObject} onUpdate={updateActiveObject} />

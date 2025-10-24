@@ -166,13 +166,13 @@ const Cart = () => {
                     </Link>
 
                     <div className="mt-2 space-y-1 text-sm text-gray-600">
-                      {item.selectedSize && <p>Size: {item.selectedSize}</p>}
-                      {item.selectedColor && (
+                      {item.size && <p>Size: {item.size}</p>}
+                      {item.color && (
                         <div className="flex items-center gap-2">
                           <span>Color:</span>
                           <div
                             className="w-5 h-5 rounded border border-gray-300"
-                            style={{ backgroundColor: item.selectedColor }}
+                            style={{ backgroundColor: item.color }}
                           />
                         </div>
                       )}
